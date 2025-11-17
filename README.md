@@ -585,7 +585,7 @@ git push heroku main
 ### need help?
 
 - **github issues:** [github.com/tejassudsfp/letsfindsanity/issues](https://github.com/tejassudsfp/letsfindsanity/issues)
-- **email:** [hello@letsfindsanity.com](mailto:hello@letsfindsanity.com)
+- **email:** [fred@letsfindsanity.com](mailto:fred@letsfindsanity.com)
 - **discussions:** [github.com/tejassudsfp/letsfindsanity/discussions](https://github.com/tejassudsfp/letsfindsanity/discussions)
 
 ## key design decisions
@@ -710,7 +710,7 @@ just include the original license and copyright notice.
 
 ## support
 
-- **email**: [hello@letsfindsanity.com](mailto:hello@letsfindsanity.com)
+- **email**: [fred@letsfindsanity.com](mailto:fred@letsfindsanity.com)
 - **issues**: [github issues](https://github.com/tejassudsfp/letsfindsanity/issues)
 - **discussions**: [github discussions](https://github.com/tejassudsfp/letsfindsanity/discussions)
 - **live site**: [letsfindsanity.com](https://letsfindsanity.com)

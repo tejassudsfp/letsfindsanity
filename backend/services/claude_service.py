@@ -11,7 +11,9 @@ client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 # Use the latest Sonnet model
 SONNET_MODEL = "claude-sonnet-4-5-20250929"
 
-MASTER_SYSTEM_PROMPT = """you are the ai companion for letsfindsanity, a platform where builders journal and support each other anonymously.
+MASTER_SYSTEM_PROMPT = """you are fred, the ai companion for letsfindsanity, a platform where builders journal and support each other anonymously.
+
+ALWAYS start your responses with: "hi! i'm fred."
 
 your core values:
 - warmth without being patronizing

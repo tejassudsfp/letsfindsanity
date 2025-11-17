@@ -45,6 +45,10 @@ function WritePageContent() {
   const [publishing, setPublishing] = useState(false)
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0)
 
+  // Email todos
+  const [emailingTodos, setEmailingTodos] = useState(false)
+  const [emailSuccess, setEmailSuccess] = useState(false)
+
   // Linked sessions
   const [linkedSessionIds, setLinkedSessionIds] = useState<string[]>([])
   const [linkedSessions, setLinkedSessions] = useState<any[]>([])
@@ -210,6 +214,31 @@ function WritePageContent() {
       }
     } else {
       setLinkedSessions([])
+    }
+  }
+
+  async function handleEmailTodos() {
+    setError('')
+    setEmailingTodos(true)
+    setEmailSuccess(false)
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sessions/${sessionId}/email-todos`, {
+        method: 'POST',
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to send email')
+      }
+
+      setEmailSuccess(true)
+      setTimeout(() => setEmailSuccess(false), 5000) // Hide success message after 5 seconds
+    } catch (err: any) {
+      setError(err.message || 'Failed to send email')
+    } finally {
+      setEmailingTodos(false)
     }
   }
 
@@ -612,14 +641,27 @@ function WritePageContent() {
               </div>
 
               {error && <ErrorMessage message={error} />}
+              {emailSuccess && (
+                <div style={{
+                  padding: '12px',
+                  background: 'var(--accent)',
+                  color: 'var(--bg-primary)',
+                  borderRadius: '4px',
+                  marginTop: '12px',
+                  textAlign: 'center',
+                  fontSize: '14px'
+                }}>
+                  ✓ email sent! check your inbox for the action items from fred.
+                </div>
+              )}
 
-              <div style={{ display: 'flex', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
                 <button
-                  onClick={handleSavePrivate}
-                  disabled={loading}
+                  onClick={handleEmailTodos}
+                  disabled={emailingTodos}
                   style={{ flex: 1 }}
                 >
-                  save private only
+                  {emailingTodos ? 'sending...' : 'email todos to me'}
                 </button>
                 <button
                   className="primary"
@@ -627,7 +669,13 @@ function WritePageContent() {
                   disabled={publishing || !editTitle || !editContent || !editAsk}
                   style={{ flex: 1 }}
                 >
-                  {publishing ? 'publishing...' : 'publish to community'}
+                  {publishing ? 'publishing...' : 'share as post'}
+                </button>
+                <button
+                  onClick={() => router.push('/journal')}
+                  style={{ flex: 0.5 }}
+                >
+                  done
                 </button>
               </div>
             </div>

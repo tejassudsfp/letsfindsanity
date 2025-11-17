@@ -81,7 +81,7 @@ export default function Footer() {
                 technical transparency
               </Link>
               <a
-                href="mailto:hello@letsfindsanity.com"
+                href="mailto:fred@letsfindsanity.com"
                 style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
               >
                 contact us

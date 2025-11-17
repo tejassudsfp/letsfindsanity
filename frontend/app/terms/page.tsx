@@ -197,8 +197,8 @@ export default function TermsPage() {
           <h2 className="mb-md">contact</h2>
           <p className="mb-md">
             questions about these terms? email us at{' '}
-            <a href="mailto:hello@letsfindsanity.com" style={{ color: 'var(--accent)' }}>
-              hello@letsfindsanity.com
+            <a href="mailto:fred@letsfindsanity.com" style={{ color: 'var(--accent)' }}>
+              fred@letsfindsanity.com
             </a>
           </p>
         </section>

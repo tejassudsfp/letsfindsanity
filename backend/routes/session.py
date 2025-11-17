@@ -5,6 +5,7 @@ from middleware.auth_middleware import require_verified
 from services.database import db
 from services.claude_service import complete_analysis
 from services.encryption_service import encrypt_content, decrypt_content
+from services.email_service import send_analysis_todos_email
 
 session_bp = Blueprint('session', __name__)
 
@@ -137,16 +138,26 @@ def analyze_session(session_id):
     is_safe_for_sharing = suggested_post.get('safe_to_publish', False)
     safety_notes = suggested_post.get('safety_notes', '')
 
+    # Encrypt content before saving
+    encrypted_content = encrypt_content(content)
+    word_count = len(content.split()) if content else 0
+
+    # Auto-save the session with analysis immediately
     db.execute("""
         UPDATE sessions
         SET title = %s,
+            raw_content = %s,
+            ai_analysis = %s,
+            duration_seconds = %s,
+            word_count = %s,
             is_safe_for_sharing = %s,
             safety_reason = %s,
             recommend_professional_help = %s,
             topics = %s,
-            linked_sessions = %s::uuid[]
+            linked_sessions = %s::uuid[],
+            completed_at = NOW()
         WHERE id = %s
-    """, [journal_title, is_safe_for_sharing, safety_notes if safety_notes else safety.get('reason', ''), recommend_help, topics, limited_ids if linked_session_ids else [], session_id], commit=True)
+    """, [journal_title, encrypted_content, analysis.get('reflection', ''), duration_seconds, word_count, is_safe_for_sharing, safety_notes if safety_notes else safety.get('reason', ''), recommend_help, topics, limited_ids if linked_session_ids else [], session_id], commit=True)
 
     return jsonify({
         'analysis': analysis
@@ -509,3 +520,39 @@ def search_sessions_for_linking():
             for s in sessions
         ]
     }), 200
+
+
+@session_bp.route('/<session_id>/email-todos', methods=['POST'])
+@require_verified
+def email_todos(session_id):
+    """Email AI analysis todos to user"""
+    user = request.user
+
+    # Fetch session with analysis
+    session = db.execute("""
+        SELECT title, ai_analysis, completed_at
+        FROM sessions
+        WHERE id = %s AND user_id = %s
+    """, [session_id, user['id']], fetch_one=True)
+
+    if not session:
+        return jsonify({'error': 'Session not found'}), 404
+
+    if not session.get('ai_analysis'):
+        return jsonify({'error': 'No analysis found for this session'}), 400
+
+    # Format the date nicely
+    session_date = session['completed_at'].strftime('%B %d, %Y') if session['completed_at'] else 'Recently'
+
+    # Send email
+    success = send_analysis_todos_email(
+        user['email'],
+        session['title'] or 'untitled',
+        session['ai_analysis'],
+        session_date
+    )
+
+    if success:
+        return jsonify({'success': True, 'message': 'Email sent!'}), 200
+    else:
+        return jsonify({'error': 'Failed to send email'}), 500

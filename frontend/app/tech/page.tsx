@@ -336,7 +336,7 @@ export default function TechPage() {
           </p>
 
           <ul style={{ paddingLeft: '20px', marginBottom: '16px' }}>
-            <li>email: <a href="mailto:hello@letsfindsanity.com" style={{ color: 'var(--accent)' }}>hello@letsfindsanity.com</a></li>
+            <li>email: <a href="mailto:fred@letsfindsanity.com" style={{ color: 'var(--accent)' }}>fred@letsfindsanity.com</a></li>
             <li>github issues: <a href="https://github.com/tejassudsfp/letsfindsanity/issues" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>report issue</a></li>
             <li>github discussions: <a href="https://github.com/tejassudsfp/letsfindsanity/discussions" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>ask questions</a></li>
           </ul>
