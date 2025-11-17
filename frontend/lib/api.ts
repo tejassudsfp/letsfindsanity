@@ -9,10 +9,14 @@ interface RequestOptions {
 async function apiRequest(endpoint: string, options: RequestOptions = {}) {
   const { method = 'GET', body, headers = {} } = options
 
+  // Get token from localStorage as fallback for when cookies don't work
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
   const config: RequestInit = {
     method,
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       ...headers,
     },
     credentials: 'include',

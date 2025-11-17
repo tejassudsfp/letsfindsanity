@@ -72,13 +72,15 @@ def verify_otp_route():
     }), 200)
 
     # Set httpOnly cookie
+    # For production with cross-origin requests, we need samesite='None' and secure=True
     response.set_cookie(
         'auth_token',
         token,
         httponly=True,
         secure=True,
         samesite='None',  # Required for cross-origin cookies
-        max_age=30 * 24 * 60 * 60  # 30 days
+        max_age=30 * 24 * 60 * 60,  # 30 days
+        path='/'  # Ensure cookie is available for all paths
     )
 
     return response

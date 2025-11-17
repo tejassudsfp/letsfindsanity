@@ -35,15 +35,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function checkAuth() {
     try {
+      const token = localStorage.getItem('auth_token')
+      const headers: HeadersInit = { 'Content-Type': 'application/json' }
+
+      // Send token in Authorization header if available (fallback for when cookies don't work)
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-        credentials: 'include'
+        credentials: 'include',  // Still try cookies first
+        headers
       })
       if (response.ok) {
         const data = await response.json()
         setUser(data.user)
+      } else {
+        // Clear invalid token
+        localStorage.removeItem('auth_token')
       }
     } catch (error) {
       console.error('Auth check failed:', error)
+      localStorage.removeItem('auth_token')
     } finally {
       setLoading(false)
     }
@@ -63,6 +76,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const data = await response.json()
+
+    // Store token in localStorage as fallback for when cookies don't work
+    if (data.token) {
+      localStorage.setItem('auth_token', data.token)
+    }
+
     setUser(data.user)
   }
 
@@ -71,6 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: 'POST',
       credentials: 'include'
     })
+    localStorage.removeItem('auth_token')
     setUser(null)
   }
 
