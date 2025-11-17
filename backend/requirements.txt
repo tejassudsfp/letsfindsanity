@@ -9,4 +9,3 @@ python-dotenv==1.0.0
 pgvector==0.2.4
 gunicorn==21.2.0
 cryptography>=42.0.0
-newrelic==11.1.0

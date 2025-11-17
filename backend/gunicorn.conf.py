@@ -7,7 +7,8 @@ import multiprocessing
 bind = f"0.0.0.0:{os.environ.get('PORT', '10000')}"
 
 # Worker processes
-workers = multiprocessing.cpu_count() * 2 + 1
+# Keep it low to avoid memory issues - 4 workers is plenty for most workloads
+workers = 4
 worker_class = 'sync'
 
 # Timeout (increased for AI API calls)
