@@ -18,6 +18,7 @@ def submit_application():
     what_building = data.get('what_building', '').strip()
     why_join = data.get('why_join', '').strip()
     proof_url = data.get('proof_url', '').strip() or None
+    how_heard = data.get('how_heard', '').strip() or None
 
     if not what_building or not why_join:
         return jsonify({'error': 'What you\'re building and why you want to join are required'}), 400
@@ -35,10 +36,10 @@ def submit_application():
 
     # Create application
     result = db.execute("""
-        INSERT INTO applications (user_id, what_building, why_join, proof_url, status)
-        VALUES (%s, %s, %s, %s, 'pending')
+        INSERT INTO applications (user_id, what_building, why_join, proof_url, how_heard, status)
+        VALUES (%s, %s, %s, %s, %s, 'pending')
         RETURNING id
-    """, [user_id, what_building, why_join, proof_url], commit=True)
+    """, [user_id, what_building, why_join, proof_url, how_heard], commit=True)
 
     # Send confirmation email
     send_application_submitted_email(request.user['email'])

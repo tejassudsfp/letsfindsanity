@@ -50,7 +50,7 @@ export const api = {
     apiRequest('/auth/theme', { method: 'PATCH', body: { theme } }),
 
   // Application
-  submitApplication: (data: { what_building: string; why_join: string; proof_url?: string }) =>
+  submitApplication: (data: { what_building: string; why_join: string; proof_url?: string; how_heard?: string }) =>
     apiRequest('/application/submit', { method: 'POST', body: data }),
 
   getApplicationStatus: () =>

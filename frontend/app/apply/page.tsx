@@ -14,9 +14,22 @@ export default function ApplyPage() {
   const [whatBuilding, setWhatBuilding] = useState('')
   const [whyJoin, setWhyJoin] = useState('')
   const [proofUrl, setProofUrl] = useState('')
+  const [howHeard, setHowHeard] = useState('')
+  const [howHeardOther, setHowHeardOther] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+
+  const howHeardOptions = [
+    'google',
+    'instagram',
+    'product hunt',
+    'freewrite community',
+    'razorpay community',
+    'other startup forums',
+    'hacker news',
+    'other'
+  ]
 
   const isReapplying = user?.can_reapply || user?.application_status === 'more_info_needed'
   const isUpdating = user?.application_status === 'more_info_needed'
@@ -43,6 +56,8 @@ export default function ApplyPage() {
       // Small delay to ensure cookie is set
       await new Promise(resolve => setTimeout(resolve, 100))
 
+      const finalHowHeard = howHeard === 'other' ? howHeardOther : howHeard
+
       if (isUpdating) {
         await api.updateApplication({
           what_building: whatBuilding,
@@ -53,7 +68,8 @@ export default function ApplyPage() {
         await api.submitApplication({
           what_building: whatBuilding,
           why_join: whyJoin,
-          proof_url: proofUrl || undefined
+          proof_url: proofUrl || undefined,
+          how_heard: finalHowHeard || undefined
         })
       }
       await refreshUser()
@@ -168,6 +184,38 @@ export default function ApplyPage() {
               helps us verify you're a builder
             </p>
           </div>
+
+          <div className="mb-md">
+            <label style={{ display: 'block', marginBottom: '8px' }}>
+              where did you hear about letsfindsanity? (optional)
+            </label>
+            <select
+              value={howHeard}
+              onChange={(e) => setHowHeard(e.target.value)}
+              disabled={loading}
+              style={{ width: '100%' }}
+            >
+              <option value="">select an option...</option>
+              {howHeardOptions.map(option => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
+
+          {howHeard === 'other' && (
+            <div className="mb-md">
+              <label style={{ display: 'block', marginBottom: '8px' }}>
+                please specify
+              </label>
+              <input
+                type="text"
+                value={howHeardOther}
+                onChange={(e) => setHowHeardOther(e.target.value)}
+                placeholder="tell us where you heard about us..."
+                disabled={loading}
+              />
+            </div>
+          )}
 
           <button
             type="submit"
