@@ -113,29 +113,55 @@ class DB:
 
     @staticmethod
     def execute(query, params=None, fetch_one=False, fetch_all=False, commit=False):
-        """Execute a query and optionally return results"""
-        with get_db_cursor(commit=commit) as cursor:
-            cursor.execute(query, params or [])
+        """Execute a query and optionally return results with automatic retry on connection errors"""
+        max_retries = 2
+        last_error = None
 
-            if fetch_one:
-                return cursor.fetchone()
-            elif fetch_all:
-                return cursor.fetchall()
-            else:
-                # For INSERT/UPDATE with RETURNING
-                try:
-                    return cursor.fetchone()
-                except:
-                    return None
+        for attempt in range(max_retries):
+            try:
+                with get_db_cursor(commit=commit) as cursor:
+                    cursor.execute(query, params or [])
+
+                    if fetch_one:
+                        return cursor.fetchone()
+                    elif fetch_all:
+                        return cursor.fetchall()
+                    else:
+                        # For INSERT/UPDATE with RETURNING
+                        try:
+                            return cursor.fetchone()
+                        except:
+                            return None
+            except (psycopg2.OperationalError, psycopg2.InterfaceError) as e:
+                last_error = e
+                if attempt < max_retries - 1:
+                    # Retry on connection error (get_db_cursor already closed the bad connection)
+                    continue
+                else:
+                    # Final attempt failed, raise the error
+                    raise e
 
     @staticmethod
     def execute_many(query, params_list, commit=False):
-        """Execute a query with multiple parameter sets"""
-        with get_db_cursor(commit=commit) as cursor:
-            cursor.executemany(query, params_list)
-            if commit:
-                return cursor.rowcount
-            return None
+        """Execute a query with multiple parameter sets with automatic retry on connection errors"""
+        max_retries = 2
+        last_error = None
+
+        for attempt in range(max_retries):
+            try:
+                with get_db_cursor(commit=commit) as cursor:
+                    cursor.executemany(query, params_list)
+                    if commit:
+                        return cursor.rowcount
+                    return None
+            except (psycopg2.OperationalError, psycopg2.InterfaceError) as e:
+                last_error = e
+                if attempt < max_retries - 1:
+                    # Retry on connection error
+                    continue
+                else:
+                    # Final attempt failed, raise the error
+                    raise e
 
 
 # Global DB instance
