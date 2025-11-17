@@ -6,6 +6,7 @@ import { useAuth } from '@/components/providers/AuthProvider'
 import { api } from '@/lib/api'
 import ErrorMessage from '@/components/shared/ErrorMessage'
 import Loading from '@/components/shared/Loading'
+import { track } from '@vercel/analytics'
 
 export default function AuthPage() {
   const router = useRouter()
@@ -22,10 +23,15 @@ export default function AuthPage() {
     setError('')
     setLoading(true)
 
+    // Track login attempt with email
+    track('Login Attempt - Send Code', { email })
+
     try {
       await api.requestOTP(email, 'login')
+      track('Login - Code Sent Successfully', { email })
       setStep('code')
     } catch (err: any) {
+      track('Login - Code Send Failed', { email, error: err.message || 'Failed to send code' })
       setError(err.message || 'Failed to send code')
     } finally {
       setLoading(false)
@@ -37,10 +43,14 @@ export default function AuthPage() {
     setError('')
     setLoading(true)
 
+    track('Login - Verify Code Attempt', { email })
+
     try {
       await login(email, code)
+      track('Login - Success', { email })
       router.push('/')
     } catch (err: any) {
+      track('Login - Verification Failed', { email, error: err.message || 'Invalid code' })
       setError(err.message || 'Invalid code')
     } finally {
       setLoading(false)
