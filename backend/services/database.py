@@ -42,33 +42,70 @@ def get_db_connection():
 @contextmanager
 def get_db_cursor(commit=False):
     """Get a database cursor with automatic connection management"""
-    with get_db_connection() as conn:
-        # Check if connection is still alive, reconnect if needed
-        try:
-            conn.isolation_level
-        except (psycopg2.OperationalError, psycopg2.InterfaceError):
-            # Connection is dead, get a new one
-            pool.putconn(conn, close=True)
-            conn = pool.getconn()
+    if pool is None:
+        init_db_pool()
 
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
+    conn = pool.getconn()
+    needs_new_conn = False
+
+    # Check if connection is still alive
+    try:
+        conn.isolation_level
+    except (psycopg2.OperationalError, psycopg2.InterfaceError):
+        # Connection is dead, mark it for closure
+        needs_new_conn = True
+
+    if needs_new_conn:
+        # Close the dead connection and get a fresh one
         try:
-            yield cursor
-            if commit:
-                conn.commit()
-        except (psycopg2.OperationalError, psycopg2.InterfaceError) as e:
-            # Connection error - close this connection and raise
+            pool.putconn(conn, close=True)
+        except:
+            pass
+        conn = pool.getconn()
+
+    cursor = None
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        yield cursor
+        if commit:
+            conn.commit()
+    except (psycopg2.OperationalError, psycopg2.InterfaceError) as e:
+        # Connection error during query - close and discard this connection
+        try:
+            if cursor:
+                cursor.close()
+        except:
+            pass
+        try:
+            conn.rollback()
+        except:
+            pass
+        try:
+            pool.putconn(conn, close=True)
+        except:
+            pass
+        raise e
+    except Exception as e:
+        try:
+            conn.rollback()
+        except:
+            pass
+        raise e
+    finally:
+        if cursor:
             try:
-                conn.rollback()
+                cursor.close()
             except:
                 pass
-            pool.putconn(conn, close=True)
-            raise e
-        except Exception as e:
-            conn.rollback()
-            raise e
-        finally:
-            cursor.close()
+        # Return connection to pool if no error
+        try:
+            pool.putconn(conn)
+        except Exception:
+            # If we can't return it, just close it
+            try:
+                conn.close()
+            except:
+                pass
 
 
 class DB:
