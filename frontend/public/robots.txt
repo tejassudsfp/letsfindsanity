@@ -1,0 +1,15 @@
+# robots.txt for letsfindsanity.com
+
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /privacy
+Allow: /terms
+Allow: /tech
+Disallow: /write
+Disallow: /journal
+Disallow: /admin
+Disallow: /apply
+
+# Sitemap
+Sitemap: https://letsfindsanity.com/sitemap.xml
