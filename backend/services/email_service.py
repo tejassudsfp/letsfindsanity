@@ -109,43 +109,37 @@ def send_application_submitted_email(to_email):
 
 def send_application_approved_email(to_email):
     """Notify user of approval"""
-    subject = "you're in! welcome to letsfindsanity"
+    subject = "you're in"
     html_content = """
-    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.6;">
-        <h2 style="text-transform: lowercase; color: #000;">hey, you're in!</h2>
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; line-height: 1.7; color: #333;">
+        <p>hey,</p>
 
-        <p>we know building is hard. like, really hard. the sleepless nights, the self-doubt, the constant wondering if you're on the right path.</p>
+        <p>you're in.</p>
 
-        <p>but here you are, building anyway. and we're genuinely impressed by what you're doing.</p>
+        <p>we know building is hard. really hard. the sleepless nights, the self-doubt, the constant wondering if you're on the right path. but here you are, building anyway. we're genuinely impressed.</p>
 
-        <p>the fact that you're in means you passed the vibe check — you're a builder who gets it. this is a space for people like you to process, reflect, and stay sane while building something that matters.</p>
+        <p>the fact that you're in means you passed the vibe check. this is a space for builders like you to process, reflect, and stay sane.</p>
 
-        <h3 style="text-transform: lowercase; margin-top: 24px;">meet fred, your AI companion</h3>
-        <p>fred is here to help you reflect, process, and find clarity. write about your day, your struggles, your wins — and fred will help you make sense of it all. sometimes we just need someone (or something) to listen without judgment.</p>
+        <p><strong>meet fred:</strong> fred is your AI companion. write about your day, your struggles, your wins — fred will help you make sense of it all. no judgment, just reflection.</p>
 
-        <h3 style="text-transform: lowercase; margin-top: 24px;">here's how it works:</h3>
-        <ul style="padding-left: 20px;">
-            <li><strong>journal privately:</strong> write about whatever's on your mind. fred reads it all and helps you reflect.</li>
-            <li><strong>share when you want:</strong> you can choose to share your reflections with the community. everything is anonymous.</li>
-            <li><strong>be supportive:</strong> when others share, show up for them. we're all in this together.</li>
-        </ul>
+        <p><strong>how it works:</strong><br>
+        - journal privately. fred reads it and helps you reflect.<br>
+        - share with the community when you want (everything's anonymous).<br>
+        - be supportive when others share. we're all in this together.</p>
 
-        <h3 style="text-transform: lowercase; margin-top: 24px;">community guidelines (keep it cool):</h3>
-        <ul style="padding-left: 20px;">
-            <li>be kind and supportive — we're all fighting our own battles</li>
-            <li>no spam, no self-promotion, no toxic behavior</li>
-            <li>keep it real and authentic — this is a judgment-free zone</li>
-            <li>respect everyone's anonymity and privacy</li>
-        </ul>
+        <p><strong>guidelines (keep it cool):</strong><br>
+        - be kind. we're all fighting our own battles.<br>
+        - no spam, self-promotion, or toxic behavior.<br>
+        - keep it real. this is a judgment-free zone.<br>
+        - respect everyone's anonymity.</p>
 
-        <h3 style="text-transform: lowercase; margin-top: 24px;">next step: create your three-word identity</h3>
-        <p>to keep things anonymous, you'll pick a three-word identity (like "thoughtful-midnight-builder" or "curious-dawn-maker"). this is how the community will know you. no real names, just vibes.</p>
+        <p><strong>next step:</strong> log in and create your three-word identity (like "thoughtful-midnight-builder"). that's how the community will know you. no real names, just vibes.</p>
 
-        <p style="margin-top: 24px;">that's it. now go log in, pick your identity, and start writing. we're glad you're here.</p>
+        <p>go to: https://letsfindsanity.com</p>
 
-        <p><a href="https://letsfindsanity.com" style="background: #000; color: #fff; padding: 12px 24px; text-decoration: none; display: inline-block; border-radius: 4px; margin-top: 16px;">choose your identity and start →</a></p>
+        <p>we're glad you're here.</p>
 
-        <p style="margin-top: 32px; color: #666; font-size: 14px;">— fred (and the letsfindsanity team)</p>
+        <p>— fred</p>
     </div>
     """
     return send_email(to_email, subject, html_content, "application_approved")
