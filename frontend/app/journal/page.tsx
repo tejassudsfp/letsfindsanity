@@ -33,6 +33,12 @@ interface Session {
   linked_sessions?: LinkedSession[]
 }
 
+interface EmailStatus {
+  sending: boolean
+  success: boolean
+  error: string
+}
+
 const INTENTS = ['processing', 'agreeing', 'challenging', 'solution', 'venting', 'advice', 'reflecting']
 
 export default function JournalPage() {
@@ -57,6 +63,10 @@ export default function JournalPage() {
   // Edit mode
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState('')
+
+  // Email todos state
+  const [emailStatus, setEmailStatus] = useState<Record<string, EmailStatus>>({})
+
 
   useEffect(() => {
     if (!authLoading && (!user || !user.three_word_id)) {
@@ -172,6 +182,43 @@ export default function JournalPage() {
   function cancelEdit() {
     setEditingSessionId(null)
     setEditContent('')
+  }
+
+  async function handleEmailTodos(sessionId: string) {
+    setEmailStatus(prev => ({
+      ...prev,
+      [sessionId]: { sending: true, success: false, error: '' }
+    }))
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sessions/${sessionId}/email-todos`, {
+        method: 'POST',
+        credentials: 'include'
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to send email')
+      }
+
+      setEmailStatus(prev => ({
+        ...prev,
+        [sessionId]: { sending: false, success: true, error: '' }
+      }))
+
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setEmailStatus(prev => ({
+          ...prev,
+          [sessionId]: { sending: false, success: false, error: '' }
+        }))
+      }, 5000)
+    } catch (err: any) {
+      setEmailStatus(prev => ({
+        ...prev,
+        [sessionId]: { sending: false, success: false, error: err.message || 'Failed to send email' }
+      }))
+    }
   }
 
   function formatDate(dateStr: string | null) {
@@ -671,7 +718,16 @@ export default function JournalPage() {
             )}
 
             {/* Actions */}
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+              {selectedSession.ai_analysis && selectedSession.ai_analysis.trim() !== '' && (
+                <button
+                  onClick={() => handleEmailTodos(selectedSession.id)}
+                  disabled={emailStatus[selectedSession.id]?.sending}
+                  className="primary"
+                >
+                  {emailStatus[selectedSession.id]?.sending ? 'sending...' : 'email todos to me'}
+                </button>
+              )}
               {(!selectedSession.ai_analysis || selectedSession.ai_analysis.trim() === '') && (
                 <button onClick={() => startEdit(selectedSession)} className="secondary">
                   edit draft
@@ -680,6 +736,17 @@ export default function JournalPage() {
               <button onClick={() => deleteSession(selectedSession.id)} style={{ color: 'var(--error)' }}>
                 delete entry
               </button>
+
+              {emailStatus[selectedSession.id]?.success && (
+                <span style={{ fontSize: '13px', color: 'var(--success)', fontWeight: 500 }}>
+                  ✓ email sent!
+                </span>
+              )}
+              {emailStatus[selectedSession.id]?.error && (
+                <span style={{ fontSize: '13px', color: 'var(--error)' }}>
+                  {emailStatus[selectedSession.id].error}
+                </span>
+              )}
             </div>
 
             {error && <ErrorMessage message={error} />}

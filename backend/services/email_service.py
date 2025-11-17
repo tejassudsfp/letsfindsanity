@@ -176,6 +176,17 @@ def send_analysis_todos_email(to_email, journal_title, analysis_text, session_da
     if not todos_section:
         todos_section = "check your journal entry for the full analysis."
 
+    # Convert markdown to HTML
+    # Handle bold text: **text** -> <strong>text</strong>
+    todos_html = todos_section.replace('**', '<strong>', 1)
+    while '**' in todos_html:
+        todos_html = todos_html.replace('**', '</strong>', 1)
+        if '**' in todos_html:
+            todos_html = todos_html.replace('**', '<strong>', 1)
+
+    # Handle line breaks and bullet points
+    todos_html = todos_html.replace('\n-', '<br>•').replace('\n', '<br>')
+
     html_content = f"""
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
         <h2 style="text-transform: lowercase; color: #000;">hi! i'm fred.</h2>
@@ -191,8 +202,8 @@ def send_analysis_todos_email(to_email, journal_title, analysis_text, session_da
 
         <h3 style="text-transform: lowercase; font-size: 16px; margin-top: 32px;">what you could do next:</h3>
 
-        <div style="line-height: 1.6; color: #333;">
-            {todos_section.replace(chr(10), '<br>')}
+        <div style="line-height: 1.8; color: #333;">
+            {todos_html}
         </div>
 
         <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #e0e0e0;">

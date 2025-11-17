@@ -142,6 +142,9 @@ def analyze_session(session_id):
     encrypted_content = encrypt_content(content)
     word_count = len(content.split()) if content else 0
 
+    # Get the private reflection text
+    private_reflection = analysis.get('private_reflection', '')
+
     # Auto-save the session with analysis immediately
     db.execute("""
         UPDATE sessions
@@ -157,7 +160,7 @@ def analyze_session(session_id):
             linked_sessions = %s::uuid[],
             completed_at = NOW()
         WHERE id = %s
-    """, [journal_title, encrypted_content, analysis.get('reflection', ''), duration_seconds, word_count, is_safe_for_sharing, safety_notes if safety_notes else safety.get('reason', ''), recommend_help, topics, limited_ids if linked_session_ids else [], session_id], commit=True)
+    """, [journal_title, encrypted_content, private_reflection, duration_seconds, word_count, is_safe_for_sharing, safety_notes if safety_notes else safety.get('reason', ''), recommend_help, topics, limited_ids if linked_session_ids else [], session_id], commit=True)
 
     return jsonify({
         'analysis': analysis
