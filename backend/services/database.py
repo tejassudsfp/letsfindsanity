@@ -43,11 +43,27 @@ def get_db_connection():
 def get_db_cursor(commit=False):
     """Get a database cursor with automatic connection management"""
     with get_db_connection() as conn:
+        # Check if connection is still alive, reconnect if needed
+        try:
+            conn.isolation_level
+        except (psycopg2.OperationalError, psycopg2.InterfaceError):
+            # Connection is dead, get a new one
+            pool.putconn(conn, close=True)
+            conn = pool.getconn()
+
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         try:
             yield cursor
             if commit:
                 conn.commit()
+        except (psycopg2.OperationalError, psycopg2.InterfaceError) as e:
+            # Connection error - close this connection and raise
+            try:
+                conn.rollback()
+            except:
+                pass
+            pool.putconn(conn, close=True)
+            raise e
         except Exception as e:
             conn.rollback()
             raise e
