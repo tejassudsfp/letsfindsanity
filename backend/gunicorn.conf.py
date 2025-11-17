@@ -12,7 +12,8 @@ worker_class = 'sync'
 
 # Timeout (increased for AI API calls)
 # Default is 30s, but Anthropic API can take longer for analysis
-timeout = 120  # 2 minutes
+# Setting to 5 minutes to handle slow API calls, retries, and network issues
+timeout = 300  # 5 minutes
 
 # Graceful timeout for cleanup
 graceful_timeout = 30
