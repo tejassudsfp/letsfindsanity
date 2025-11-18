@@ -462,6 +462,16 @@ a:hover {
     gap: 8px !important;
     text-align: center !important;
   }
+
+  /* Better spacing between content sections on mobile */
+  section, article, .content-section {
+    margin-bottom: 24px !important;
+  }
+
+  /* Add gap between adjacent divs with borders */
+  div[style*="border"] + div[style*="border"] {
+    margin-top: 16px !important;
+  }
 }
 
 @media (min-width: 769px) {
@@ -481,13 +491,22 @@ a:hover {
   /* Make journal list full width on mobile */
   .journal-layout {
     flex-direction: column !important;
+    height: auto !important;
   }
 
   .journal-sidebar {
     width: 100% !important;
     border-right: none !important;
     border-bottom: 1px solid var(--border);
+    height: auto !important;
+    max-height: none !important;
   }
 
   /* journal-content visibility is controlled by inline styles in the component */
+  .journal-content {
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  }
 }

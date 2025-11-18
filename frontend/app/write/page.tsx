@@ -223,9 +223,16 @@ function WritePageContent() {
     setEmailSuccess(false)
 
     try {
+      const token = localStorage.getItem('auth_token')
+      const headers: HeadersInit = { 'Content-Type': 'application/json' }
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/sessions/${sessionId}/email-todos`, {
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
+        headers
       })
 
       if (!response.ok) {

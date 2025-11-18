@@ -22,8 +22,15 @@ export default function JournalVisualizePage() {
   async function loadTopicConnections() {
     setLoading(true)
     try {
+      const token = localStorage.getItem('auth_token')
+      const headers: HeadersInit = { 'Content-Type': 'application/json' }
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/topics/connections?scope=personal`, {
-        credentials: 'include'
+        credentials: 'include',
+        headers
       })
       const result = await response.json()
       setData(result)
@@ -44,14 +51,15 @@ export default function JournalVisualizePage() {
 
   return (
     <div className="container">
-      <div className="flex justify-between items-center mb-lg">
-        <div>
-          <h1 className="mb-sm">your journal topic map</h1>
-          <p className="text-secondary">visualize how topics connect in your personal journal</p>
-        </div>
+      <div className="mb-md">
         <Link href="/journal">
-          <button>back to journal</button>
+          <button>← back to journal</button>
         </Link>
+      </div>
+
+      <div className="mb-lg">
+        <h1 className="mb-sm">your journal topic map</h1>
+        <p className="text-secondary">visualize how topics connect in your personal journal</p>
       </div>
 
       {data && data.nodes && data.nodes.length > 0 ? (
