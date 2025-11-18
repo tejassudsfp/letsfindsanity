@@ -239,6 +239,78 @@ export default function JournalPage() {
     }
   }
 
+  function handleContinueWithAI(session: Session, platform: 'claude' | 'chatgpt') {
+    // Get the intent-specific instructions
+    const intentInstructions: Record<string, string> = {
+      "processing": "they're thinking out loud. help them see what they might not be seeing.\n- identify the actual concern beneath the rambling\n- notice emotional undertones\n- don't try to solve, just reflect back clearly",
+      "agreeing": "they want supportive agreement. validate their perspective while adding depth.\n- acknowledge what they're seeing correctly\n- reinforce the wisdom in their approach\n- help them feel heard and supported\n- be genuine, not just cheerleading",
+      "challenging": "they want to see this differently. offer respectful alternative perspectives.\n- what's another way to look at this?\n- what might they be missing?\n- play devil's advocate thoughtfully, not harshly\n- be respectful and constructive, never dismissive",
+      "solution": "they figured something out. help them understand what made it work.\n- what was the breakthrough moment?\n- what can they learn from this?\n- celebrate the win without being cheesy",
+      "venting": "they need to get it out. validate without agreeing with every thought.\n- acknowledge the frustration\n- separate feeling from fact\n- help them see if this is pattern or one-off\n- if it seems too raw to share, suggest they wait",
+      "advice": "they have a specific problem. help clarify the actual question.\n- what are they really asking?\n- what information is missing?\n- what assumptions are they making?\n- don't answer it - help them frame it better",
+      "reflecting": "they're looking back. help them see progress they might miss.\n- what's changed since then?\n- what growth is evident?\n- what patterns are worth noting?"
+    }
+
+    const intentInstruction = intentInstructions[session.intent] || intentInstructions["processing"]
+
+    // Build the pre-filled prompt using the actual system prompt from the backend
+    const prompt = `you are fred, the ai companion for letsfindsanity, a platform where builders journal and support each other anonymously.
+
+ALWAYS start your responses with: "hi! i'm fred."
+
+your core values:
+- warmth without being patronizing
+- honesty without being harsh
+- supportive without giving unsolicited advice
+- pattern recognition without armchair psychology
+
+your writing style:
+- always lowercase (except for proper nouns when absolutely necessary)
+- conversational, like a thoughtful friend
+- no corporate speak, no jargon
+- short sentences when possible
+- genuine, never formulaic
+
+remember:
+- these are real people with real struggles
+- building something is emotionally hard
+- your job is to help them process, not fix them
+- you're not a therapist, you're a reflective companion
+- anonymity is sacred - never suggest breaking it
+
+---
+
+A user recently wrote a journal entry with intent: "${session.intent}" and received analysis from you. They want to continue the conversation.
+
+**Intent Guidance (${session.intent}):**
+${intentInstruction}
+
+**Their Journal Entry:**
+${session.raw_content}
+
+**Your Previous Analysis:**
+${session.ai_analysis || '(No analysis was generated yet)'}
+
+${session.topics && session.topics.length > 0 ? `**Topics:** ${session.topics.map(t => '#' + t).join(', ')}` : ''}
+
+---
+
+The user wants to continue this conversation with you. If you've understood everything and are ready to help, please reply with:
+
+"Hi! I'm Fred from letsfindsanity. Let's talk! I'm here for you!"`
+
+    // Encode the prompt for URL
+    const encodedPrompt = encodeURIComponent(prompt)
+
+    // Open the selected platform with pre-filled prompt
+    const url = platform === 'claude'
+      ? `https://claude.ai/new?q=${encodedPrompt}`
+      : `https://chat.openai.com/?q=${encodedPrompt}`
+
+    // Open in new tab
+    window.open(url, '_blank')
+  }
+
   function formatDate(dateStr: string | null) {
     if (!dateStr) return 'Draft'
     const date = new Date(dateStr)
@@ -762,13 +834,27 @@ export default function JournalPage() {
             {/* Actions */}
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
               {selectedSession.ai_analysis && selectedSession.ai_analysis.trim() !== '' && (
-                <button
-                  onClick={() => handleEmailTodos(selectedSession.id)}
-                  disabled={emailStatus[selectedSession.id]?.sending}
-                  className="primary"
-                >
-                  {emailStatus[selectedSession.id]?.sending ? 'sending...' : 'email todos to me'}
-                </button>
+                <>
+                  <button
+                    onClick={() => handleEmailTodos(selectedSession.id)}
+                    disabled={emailStatus[selectedSession.id]?.sending}
+                    className="primary"
+                  >
+                    {emailStatus[selectedSession.id]?.sending ? 'sending...' : 'email todos to me'}
+                  </button>
+                  <button
+                    onClick={() => handleContinueWithAI(selectedSession, 'claude')}
+                    className="secondary"
+                  >
+                    continue with claude
+                  </button>
+                  <button
+                    onClick={() => handleContinueWithAI(selectedSession, 'chatgpt')}
+                    className="secondary"
+                  >
+                    continue with chatgpt
+                  </button>
+                </>
               )}
               {(!selectedSession.ai_analysis || selectedSession.ai_analysis.trim() === '') && (
                 <button onClick={() => startEdit(selectedSession)} className="secondary">
