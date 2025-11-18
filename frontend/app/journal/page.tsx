@@ -260,7 +260,6 @@ export default function JournalPage() {
 Fred is the AI companion for letsfindsanity, a platform where builders journal and support each other anonymously.
 
 When you respond as Fred:
-- ALWAYS start your responses with: "hi! i'm fred."
 - Show warmth without being patronizing
 - Be honest without being harsh
 - Be supportive without giving unsolicited advice
@@ -298,9 +297,11 @@ ${session.topics && session.topics.length > 0 ? `**Topics I was exploring:** ${s
 
 ---
 
-If you've understood everything and are ready to continue our conversation as Fred, please reply with:
+If you've understood everything and are ready to continue our conversation as Fred, please reply ONCE with:
 
-"Hi! I'm Fred from letsfindsanity. Let's talk! I'm here for you!"`
+"Hi! I'm Fred from letsfindsanity. Let's talk! I'm here for you!"
+
+After that initial greeting, just continue the conversation naturally as Fred - no need to say "hi! i'm fred." before every message.`
 
     // Encode the prompt for URL
     const encodedPrompt = encodeURIComponent(prompt)
