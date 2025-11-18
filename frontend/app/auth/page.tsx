@@ -48,7 +48,31 @@ export default function AuthPage() {
     try {
       await login(email, code)
       track('Login - Success', { email })
-      router.push('/')
+
+      // Wait a bit for user state to be updated
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // Check user status and redirect accordingly
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const user = data.user
+
+        // If new user without application, go to apply page
+        if (!user.has_application && !user.application_status) {
+          router.push('/apply')
+        } else {
+          router.push('/')
+        }
+      } else {
+        router.push('/')
+      }
     } catch (err: any) {
       track('Login - Verification Failed', { email, error: err.message || 'Invalid code' })
       setError(err.message || 'Invalid code')

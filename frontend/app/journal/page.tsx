@@ -49,6 +49,7 @@ export default function JournalPage() {
   const [selectedSession, setSelectedSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [isMobile, setIsMobile] = useState(false)
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('')
@@ -67,6 +68,16 @@ export default function JournalPage() {
   // Email todos state
   const [emailStatus, setEmailStatus] = useState<Record<string, EmailStatus>>({})
 
+
+  useEffect(() => {
+    // Check if mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     if (!authLoading && (!user || !user.three_word_id)) {
@@ -239,17 +250,17 @@ export default function JournalPage() {
   }
 
   return (
-    <div style={{
+    <div className="journal-layout" style={{
       display: 'flex',
       height: 'calc(100vh - 97px)', // Account for navbar (60px + 32px margin + 5px adjustment)
       overflow: 'hidden',
       marginTop: '-32px' // Pull up to connect with header
     }}>
-      {/* Sidebar */}
-      <div style={{
+      {/* Sidebar - hidden on mobile when session is selected */}
+      <div className="journal-sidebar" style={{
         width: '320px',
         borderRight: '1px solid var(--border)',
-        display: 'flex',
+        display: isMobile && selectedSession ? 'none' : 'flex',
         flexDirection: 'column',
         background: 'var(--bg-secondary)'
       }}>
@@ -552,10 +563,34 @@ export default function JournalPage() {
 
       </div>
 
-      {/* Main Content */}
-      <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-primary)' }}>
+      {/* Main Content - shown on desktop always, on mobile only when session selected */}
+      <div className="journal-content" style={{
+        flex: 1,
+        overflowY: 'auto',
+        background: 'var(--bg-primary)',
+        display: isMobile && !selectedSession ? 'none' : 'block'
+      }}>
         {selectedSession ? (
-          <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 24px' }}>
+          <div style={{ maxWidth: '800px', margin: '0 auto', padding: isMobile ? '20px 16px' : '40px 24px' }}>
+            {/* Mobile Back Button */}
+            {isMobile && (
+              <button
+                onClick={() => setSelectedSession(null)}
+                style={{
+                  marginBottom: '20px',
+                  padding: '8px 16px',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '14px'
+                }}
+              >
+                ← back to journal
+              </button>
+            )}
             {/* Header */}
             <div style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>

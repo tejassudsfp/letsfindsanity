@@ -28,7 +28,7 @@ export default function HomePage() {
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="text-center" style={{ maxWidth: '600px', padding: '40px 20px' }}>
           <h1 style={{
-            fontSize: '48px',
+            fontSize: 'clamp(32px, 8vw, 48px)',
             marginBottom: '20px',
             fontWeight: 600,
             lineHeight: '1.2'
@@ -54,18 +54,9 @@ export default function HomePage() {
           <p style={{
             fontSize: '16px',
             lineHeight: '1.5',
-            marginBottom: '20px'
+            marginBottom: '40px'
           }}>
             come be part of a community that shows up to cheer you!
-          </p>
-
-          <p style={{
-            fontSize: '14px',
-            color: 'var(--accent)',
-            marginBottom: '16px',
-            fontWeight: 500
-          }}>
-            builders only
           </p>
 
           <Link href="/about">

@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer style={{
+    <footer className="footer" style={{
       borderTop: '1px solid var(--border)',
       marginTop: '64px',
       fontSize: '13px',
@@ -10,7 +10,7 @@ export default function Footer() {
       padding: '16px 24px'
     }}>
       <div>
-        <div style={{
+        <div className="footer-grid" style={{
           display: 'grid',
           gridTemplateColumns: '3fr 1.5fr 1.5fr 1.5fr 2fr',
           gap: '48px',
@@ -122,7 +122,7 @@ export default function Footer() {
 
       {/* Bottom copyright */}
       <div>
-        <div style={{
+        <div className="footer-bottom" style={{
           marginTop: '24px',
           paddingTop: '24px',
           borderTop: '1px solid var(--border)',

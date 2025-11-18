@@ -136,11 +136,11 @@ export default function PostCard({ post, onUpdate }: PostCardProps) {
       )}
 
       {/* Reactions and Comments */}
-      <div className="flex items-center justify-between" style={{
+      <div className="post-actions" style={{
         paddingTop: '12px',
         borderTop: '1px solid var(--border)'
       }}>
-        <div className="flex gap-sm">
+        <div className="flex gap-sm" style={{ flexWrap: 'wrap', marginBottom: '12px' }}>
           {REACTIONS.map((r) => (
             <button
               key={r.type}
