@@ -24,6 +24,7 @@ from routes.export import export_bp
 
 # Import services to initialize
 from services.database import init_db_pool
+from services.keep_alive import start_keep_alive
 
 
 def create_app(config_name=None):
@@ -38,6 +39,8 @@ def create_app(config_name=None):
     # Initialize database connection pool
     with app.app_context():
         init_db_pool()
+        # Start background task to keep database alive (prevents Neon auto-suspend)
+        start_keep_alive()
 
     # Configure CORS - parse comma-separated frontend URLs from env
     frontend_urls = app.config['FRONTEND_URL'].split(',')
