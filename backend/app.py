@@ -62,10 +62,16 @@ def create_app(config_name=None):
     app.register_blueprint(deletion_bp, url_prefix='/api/deletion')
     app.register_blueprint(export_bp, url_prefix='/api/export')
 
-    # Health check endpoint
+    # Health check endpoint - also keeps Neon database warm
     @app.route('/health')
     def health():
-        return jsonify({'status': 'healthy'}), 200
+        from services.database import db
+        try:
+            # Simple query to keep database connection alive (prevents Neon auto-suspend)
+            db.execute("SELECT 1", fetch_one=True)
+            return jsonify({'status': 'healthy', 'database': 'connected'}), 200
+        except Exception as e:
+            return jsonify({'status': 'unhealthy', 'database': 'disconnected', 'error': str(e)}), 500
 
     # Root endpoint
     @app.route('/')
